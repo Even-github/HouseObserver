@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.even.HouseObserver.common.mapper.SpiderDataSourceMapper">
+	<select id="selectByKeyword" parameterType="String" resultType="per.even.HouseObserver.common.model.SpiderDataSource">
+		select * from spider_data_source
+		where source_name=#{keyword} or type=#{keyword} or city=#{keyword}
+		or county=#{keyword}
+	</select>
+	<delete id="bulkDeleteById">
+		delete from spider_data_source where id in 
+		<foreach collection="list" item="item" open="(" separator="," close=")">
+		#{item}
+		</foreach>
+	</delete>
+	<select id="countBySourceName" resultType="int">
+		select count(*) from spider_data_source
+		where source_name=#{name}
+	</select>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.even.HouseObserver.common.mapper.HouseMapper">
+	<select id="selectByKeyword" parameterType="String" resultType="per.even.HouseObserver.common.model.House">
+		select * from house where
+		house_name=#{keyword} or county=#{keyword}
+	</select>
+	<delete id="bulkDeleteById">
+		delete from house where id in 
+		<foreach collection="list" item="item" open="(" separator="," close=")">
+		#{item}
+		</foreach>
+	</delete>
+</mapper>
