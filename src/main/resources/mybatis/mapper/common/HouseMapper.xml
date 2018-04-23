@@ -13,4 +13,33 @@
 		#{item}
 		</foreach>
 	</delete>
+	<select id="selectProvinceAveragePriceByCrawlTime" parameterType="java.lang.Double" resultType="per.even.HouseObserver.common.model.vo.ProvinceAveragePrice">
+		select province, AVG(unit_price) as averagePrice
+		from house where
+		crawl_time > #{time}
+		group by province
+	</select>
+	<select id="selectCityAveragePriceByCrawlTime" parameterType="java.lang.Double" resultType="per.even.HouseObserver.common.model.vo.CityAveragePrice">
+		select city, AVG(unit_price) as averagePrice
+		from house where
+		crawl_time > #{time}
+		group by city
+	</select>
+	<select id="selectCityAveragePriceByType" resultType="java.lang.Double">
+		select AVG(unit_price) as averagePrice
+		from house where
+		crawl_time > #{time} and city = #{city} and type = #{type}
+		group by city
+	</select>
+	<select id="selectCity" resultType="java.lang.String">
+		select distinct city
+		from house
+	</select>
+	<select id="selectAveragePriceByCityCounty" parameterType="java.lang.String" resultType="per.even.HouseObserver.common.model.vo.CountyAveragePrice">
+		select county, AVG(unit_price) as averagePrice
+		from house where
+		city = #{city}
+		group by city, county
+		order by averagePrice desc
+	</select>
 </mapper>

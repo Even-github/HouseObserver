@@ -1,5 +1,7 @@
 package per.even.HouseObserver.common.model;
 
+import java.util.UUID;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -14,6 +16,10 @@ public class SpiderDataSource {
 	private String city; //城市
 	private String county; //区/县
 	private String url;
+	
+	public SpiderDataSource() {
+		this.id = UUID.randomUUID().toString();
+	}
 	
 	public String getId() {
 		return id;

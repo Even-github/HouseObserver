@@ -11,6 +11,12 @@ public class DataListResponse<T> extends BaseResponse {
 		
 	}
 	
+	public DataListResponse(List<? extends T> data) {
+		this.code = "200";
+		this.message = "ok";
+		this.data = data;
+	}
+	
 	public DataListResponse(List<? extends T> data, Integer pageNum, Long total) {
 		this.code = "200";
 		this.message = "ok";

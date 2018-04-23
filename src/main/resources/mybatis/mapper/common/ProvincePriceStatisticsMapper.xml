@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.even.HouseObserver.common.mapper.ProvincePriceStatisticsMapper">
+	<select id="selectAveragePriceByProvinceAndTime" resultType="java.lang.Double">
+		select average_price
+		from province_price_statistics
+		where province=#{province} and statistical_time > #{time}
+		order by statistical_time desc
+		limit 1
+	</select>
+	<insert id="bulkInsert">
+		insert into province_price_statistics
+		values
+		<foreach item="item" collection="list" separator=",">
+			(#{item.id}, 
+			#{item.province}, 
+			#{item.averagePrice}, 
+			#{item.weekGrowthRate}, 
+			#{item.prizeRank}, 
+			#{item.statisticalTime})
+		</foreach>
+	</insert>
+	<select id="selectAveragePriceByTime" resultType="per.even.HouseObserver.common.model.vo.ProvincePriceInfo">
+		select 
+		province, 
+		average_price as 'provinceAveragePrice',
+		week_growth_rate as 'provinceRate',
+		prize_rank as 'provincePrizeRank' 
+		from province_price_statistics
+		where statistical_time > #{time}
+	</select>
+	<select id="selectNewAveragePrice" resultType="per.even.HouseObserver.common.model.vo.ProvincePriceInfo">
+		select 
+		province_price_statistics.province as 'province', 
+		province_price_statistics.average_price as 'provinceAveragePrice',
+		province_price_statistics.week_growth_rate as 'provinceRate',
+		province_price_statistics.statistical_time as 'statisticalTime' 
+		from province_price_statistics,
+		(select province, MAX(statistical_time) as max_time
+		from province_price_statistics
+		group by province) as tmp
+		where province_price_statistics.province = tmp.province
+		and province_price_statistics.statistical_time = tmp.max_time
+	</select>
+	<select id="getProvinceNewPriceInfoByProvince" resultType="per.even.HouseObserver.common.model.vo.ProvinceNewPriceInfo">
+		select province,
+		average_price as 'averagePrice',
+		week_growth_rate as 'weekGrowthRate',
+		statistical_time as 'statisticalTime' 
+		from province_price_statistics
+		where province = #{province}
+		order by statistical_time DESC
+		limit 1		
+	</select>
+	<select id="selectAveragePriceAndTimeByProvince" resultType="per.even.HouseObserver.common.model.vo.AveragePriceAndTime">
+		select average_price as 'averagePrice',
+		statistical_time as 'statisticalTime'
+		from province_price_statistics
+		where province = #{province}
+		order by statisticalTime ASC
+	</select>
+</mapper>

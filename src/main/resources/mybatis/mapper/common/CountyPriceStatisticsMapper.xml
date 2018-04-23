@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.even.HouseObserver.common.mapper.CountyPriceStatisticsMapper">
+	<select id="selectLastWeekAveragePrice" resultType="java.lang.Double">
+		select average_price
+		from county_price_statistics
+		where city=#{city} and county=#{county} and statistical_time > #{time}
+		order by statistical_time desc
+		limit 1
+	</select>
+	<insert id="bulkInsert">
+		insert into county_price_statistics
+		values
+		<foreach item="item" collection="list" separator=",">
+			(#{item.id}, 
+			#{item.city}, 
+			#{item.county}, 
+			#{item.averagePrice},
+			#{item.weekGrowthRate},
+			#{item.cityRank},
+			#{item.statisticalTime})
+		</foreach>
+	</insert>
+	<select id="selectByCity" resultType="per.even.HouseObserver.common.model.vo.CountyPriceInfo">
+		select county_price_statistics.county as 'county', 
+		county_price_statistics.average_price as 'averagePrice',
+		county_price_statistics.week_growth_rate as 'weekGrowthRate',
+		county_price_statistics.statistical_time as 'statisticalTime'
+		from county_price_statistics,
+		(select county, MAX(statistical_time) as max_time
+		from county_price_statistics where city = #{city}
+		group by county) as tmp
+		where county_price_statistics.city = #{city} 
+		and county_price_statistics.county = tmp.county 
+		and county_price_statistics.statistical_time = tmp.max_time
+	</select>
+</mapper>

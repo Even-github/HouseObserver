@@ -9,7 +9,10 @@ import com.github.pagehelper.PageHelper;
 
 import per.even.HouseObserver.common.mapper.HouseMapper;
 import per.even.HouseObserver.common.model.House;
+import per.even.HouseObserver.common.model.vo.CityAveragePrice;
+import per.even.HouseObserver.common.model.vo.CountyAveragePrice;
 import per.even.HouseObserver.common.model.vo.Page;
+import per.even.HouseObserver.common.model.vo.ProvinceAveragePrice;
 import per.even.HouseObserver.common.service.AbstractService;
 
 @Service
@@ -47,6 +50,27 @@ public class HouseService extends AbstractService<House>{
 	@Override
 	public boolean insert(House data) {
 		return houseMapper.insertSelective(data) > 0;
+	}
+	
+	public List<ProvinceAveragePrice> selectProvinceAveragePriceByCrawlTime(Double time) {
+		return houseMapper.selectProvinceAveragePriceByCrawlTime(time);
+	}
+
+	public List<CityAveragePrice> selectCityAveragePriceByCrawlTime(Double time) {
+		return houseMapper.selectCityAveragePriceByCrawlTime(time);
+	}
+
+	public Double selectCityAveragePriceByType(String city, String type, 
+			Double beginTime) {
+		return houseMapper.selectCityAveragePriceByType(city, type, beginTime);
+	}
+
+	public List<CountyAveragePrice> selectAveragePriceByCityCounty(String city) {
+		return houseMapper.selectAveragePriceByCityCounty(city);
+	}
+
+	public List<String> selectCity() {
+		return houseMapper.selectCity();
 	}
 	
 }

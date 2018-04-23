@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="per.even.HouseObserver.common.mapper.StatisticsLogMapper">
+	<select id="selectLastStatisticsTime" resultType="java.lang.String">
+		select MAX(statistics_time) from statistics_log
+	</select>
+</mapper>
