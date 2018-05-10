@@ -20,25 +20,25 @@ import per.even.HouseObserver.utils.TimeUtil;
 @Service
 public class CountyPriceStatisticsService {
 	//默认搜索12天内的统计记录
-	private static final int SEARCHTIMERANGE = 12; 
+//	private static final int SEARCHTIMERANGE = 12; 
 	
 	@Autowired
 	private CountyPriceStatisticsMapper countyPriceStatisticsMapper;
 	@Autowired
 	private HouseService houseService;
 	
-	public boolean statisticsAll() {
-		List<String> cityList = houseService.selectCity();
+	public boolean statisticsAll(Double beginTime, Double endTime) {
+		List<String> cityList = houseService.selectCityByCrawlTime(beginTime, endTime);
 		if(!cityList.isEmpty()) {
 			List<CountyPriceStatistics> allStatistics = new ArrayList<>();
 			for(String city : cityList) {
 				List<CountyPriceStatistics> statisticsList = 
 						this.statisticsRank(
-								this.statisticsAveragePriceByCity(city));
+								this.statisticsAveragePriceByCity(city, beginTime, endTime));
 				allStatistics.addAll(statisticsList);
 			}
 			allStatistics = 
-					this.statisticsWeekGrowthRate(allStatistics);
+					this.statisticsWeekGrowthRate(allStatistics, beginTime);
 			if(!allStatistics.isEmpty()) {
 				return countyPriceStatisticsMapper.bulkInsert(allStatistics) > 0;
 			} else {
@@ -49,9 +49,10 @@ public class CountyPriceStatisticsService {
 		}
 	}
 	
-	public List<CountyPriceStatistics> statisticsAveragePriceByCity(String city) {
+	public List<CountyPriceStatistics> statisticsAveragePriceByCity(
+			String city, Double beginTime, Double endTime) {
 		List<CountyAveragePrice> priceList = 
-				houseService.selectAveragePriceByCityCounty(city);
+				houseService.selectAveragePriceByCityCounty(city, beginTime, endTime);
 		List<CountyPriceStatistics> statisticsList = new ArrayList<>();
 		for(CountyAveragePrice price : priceList) {
 			CountyPriceStatistics statistics = new CountyPriceStatistics();
@@ -77,13 +78,13 @@ public class CountyPriceStatisticsService {
 	}
 	
 	public List<CountyPriceStatistics> statisticsWeekGrowthRate(
-			List<CountyPriceStatistics> list) {
+			List<CountyPriceStatistics> list, Double lastStatisticsTime) {
 		for(CountyPriceStatistics statistics : list) {
-			Double targetTime = 
-					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, 
-							Double.valueOf(statistics.getStatisticalTime()));
+//			Double targetTime = 
+//					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, 
+//							Double.valueOf(statistics.getStatisticalTime()));
 			Double lastWeekAveragePrice = countyPriceStatisticsMapper.selectLastWeekAveragePrice(
-					statistics.getCity(), statistics.getCounty(), targetTime);
+					statistics.getCity(), statistics.getCounty(), lastStatisticsTime);
 			if(lastWeekAveragePrice != null) {
 				Double weekGrowthRate = (statistics.getAveragePrice() - lastWeekAveragePrice) * 100 / lastWeekAveragePrice;
 				statistics.setWeekGrowthRate(weekGrowthRate);

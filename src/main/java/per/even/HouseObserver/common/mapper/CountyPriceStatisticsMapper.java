@@ -13,6 +13,8 @@ public interface CountyPriceStatisticsMapper extends Mapper<CountyPriceStatistic
 	Double selectLastWeekAveragePrice(
 			@Param("city")String city, @Param("county")String county, 
 			@Param("time")Double time);
+	
 	int bulkInsert(List<CountyPriceStatistics> list);
+	
 	List<CountyPriceInfo> selectByCity(String city);
 }

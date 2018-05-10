@@ -15,12 +15,18 @@ import tk.mybatis.mapper.common.Mapper;
 public interface ProvincePriceStatisticsMapper extends Mapper<ProvincePriceStatistics> {
 	Double selectAveragePriceByProvinceAndTime(@Param(value = "province")String province, 
 			@Param(value = "time")Double time);
+	
 	int bulkInsert(List<ProvincePriceStatistics> list);
+	
 	List<ProvincePriceInfo> selectAveragePriceByTime(
 			@Param(value = "time")String time);
+	
 	ProvinceNewPriceInfo getProvinceNewPriceInfoByProvince(
 			@Param(value = "province")String province);
+	
 	List<AveragePriceAndTime> selectAveragePriceAndTimeByProvince(
 			@Param(value = "province")String province);
+	
 	List<ProvincePriceInfo> selectNewAveragePrice();
+	
 }

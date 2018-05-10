@@ -28,6 +28,8 @@ public class SpiderService {
 	private static final String LISTJOBS = "listjobs.json";
 	private static final String AnjukeNewHouseSpider = "AnjukeNewHouseSpider";
 	private static final String AnjukeUsedHouseSpider = "AnjukeUsedHouseSpider";
+	private static final String LianjiaNewHouseSpider = "LianjiaNewHouseSpider";
+	private static final String LianjiaUsedHouseSpider = "LianjiaUsedHouseSpider";
 	
 	@Autowired
 	private DataSourceService dataSourceService;
@@ -87,10 +89,18 @@ public class SpiderService {
 			String spider = "";
 			if ("安居客".equals(source.getSource_name())) {
 				if ("new".equals(source.getType())) {
-					spider = this.AnjukeNewHouseSpider;
+					spider = SpiderService.AnjukeNewHouseSpider;
 				} else {
-					spider = this.AnjukeUsedHouseSpider;
+					spider = SpiderService.AnjukeUsedHouseSpider;
 				}
+			} else if ("链家网".equals(source.getSource_name())) {
+				if ("new".equals(source.getType())) {
+					spider = SpiderService.LianjiaNewHouseSpider;
+				} else {
+					spider = SpiderService.LianjiaUsedHouseSpider;
+				}
+			} else {}
+			if (spider != "") {
 				String param = "project=HouseCrawler&spider=" + spider +
 						"&city=" + source.getCity() + "&county=" + source.getCounty() +
 						"&url=" + source.getUrl();
@@ -101,8 +111,6 @@ public class SpiderService {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			} else {
-				return null;
 			}
 		}
 		return map;

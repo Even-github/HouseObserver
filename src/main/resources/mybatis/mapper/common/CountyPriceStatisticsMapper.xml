@@ -6,7 +6,7 @@
 	<select id="selectLastWeekAveragePrice" resultType="java.lang.Double">
 		select average_price
 		from county_price_statistics
-		where city=#{city} and county=#{county} and statistical_time > #{time}
+		where city=#{city} and county=#{county} and <![CDATA[statistical_time >= #{time}]]>
 		order by statistical_time desc
 		limit 1
 	</select>

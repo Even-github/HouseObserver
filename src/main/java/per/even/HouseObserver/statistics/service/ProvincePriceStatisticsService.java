@@ -28,7 +28,7 @@ import per.even.HouseObserver.utils.TimeUtil;
 @Service
 public class ProvincePriceStatisticsService {
 	//默认搜索12天内的统计记录
-	private static final int SEARCHTIMERANGE = 12; 
+//	private static final int SEARCHTIMERANGE = 12; 
 	
 	@Autowired
 	private ProvincePriceStatisticsMapper provincePriceMapper;
@@ -39,11 +39,11 @@ public class ProvincePriceStatisticsService {
 	@Autowired
 	private CityPriceStatisticsService cityPriceStatisticsService;
 	
-	public boolean statisticsAll() {
+	public boolean statisticsAll(Double beginTime, Double endTime) {
 		List<ProvincePriceStatistics> list =
 				this.statisticsPrizeRank(
 						this.statisticsWeekGrowthRate(
-								this.statisticsAveragePrice()));
+								this.statisticsAveragePrice(beginTime, endTime), beginTime));
 				
 		if(!list.isEmpty()) {
 			return provincePriceMapper.bulkInsert(list) > 0;
@@ -56,10 +56,10 @@ public class ProvincePriceStatisticsService {
 	 * 统计均价
 	 * @return
 	 */
-	public List<ProvincePriceStatistics> statisticsAveragePrice() {
+	public List<ProvincePriceStatistics> statisticsAveragePrice(
+			Double beginTime, Double endTime) {
 		List<ProvinceAveragePrice> list = 
-				houseService.selectProvinceAveragePriceByCrawlTime(
-						TimeUtil.getLastWeekTimeStamp());
+				houseService.selectProvinceAveragePriceByCrawlTime(beginTime, endTime);
 		List<ProvincePriceStatistics> statisticsList = new ArrayList<>();
 		for(ProvinceAveragePrice price : list) {
 			ProvincePriceStatistics statistics = new ProvincePriceStatistics();
@@ -76,13 +76,13 @@ public class ProvincePriceStatisticsService {
 	 * @return
 	 */
 	public List<ProvincePriceStatistics> statisticsWeekGrowthRate(
-			List<ProvincePriceStatistics> list) {
+			List<ProvincePriceStatistics> list, Double lastStatisticsTime) {
 		for(ProvincePriceStatistics pps : list) {
-			Double targeTime = 
-					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, Double.valueOf(pps.getStatisticalTime()));
+//			Double targeTime = 
+//					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, Double.valueOf(pps.getStatisticalTime()));
 			Double lastWeekAveragePrice = 
 					provincePriceMapper.selectAveragePriceByProvinceAndTime(pps.getProvince(),
-							targeTime);
+							lastStatisticsTime);
 			if(lastWeekAveragePrice != null) {
 				pps.setWeekGrowthRate(
 						(pps.getAveragePrice() - lastWeekAveragePrice) * 100 / lastWeekAveragePrice);

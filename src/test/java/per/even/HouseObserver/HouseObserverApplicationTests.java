@@ -29,24 +29,26 @@ public class HouseObserverApplicationTests {
 	
 	@Test
 	public void contextLoads() {
+		Double lastTime = Double.valueOf(statisticsLogService.getLastTime());
 		System.out.println("开始统计...");
-		StatisticsLog log = new StatisticsLog();
+//		StatisticsLog log = new StatisticsLog();
 		String currentTimeStamp = NumberFormatter.doubleFormat(TimeUtil.getCurrentTimeStamp());
-		log.setStatisticsTime(currentTimeStamp);
-		statisticsLogService.insert(log);
-		Double time1 = TimeUtil.getCurrentTimeStamp();
-		System.out.println(
-				"省份统计：" + provincePriceStatisticsService.statisticsAll());
-		Double time2 = TimeUtil.getCurrentTimeStamp();
-		System.out.println("省份统计耗时：" + (time2 - time1) + "s");
-		System.out.println(
-				"城市统计：" + cityPriceStatisticsService.statisticsAll());
+//		log.setStatisticsTime(currentTimeStamp);
+//		statisticsLogService.insert(log);
+//		Double time1 = TimeUtil.getCurrentTimeStamp();
+//		System.out.println(
+//				"省份统计：" + provincePriceStatisticsService.statisticsAll());
+//		Double time2 = TimeUtil.getCurrentTimeStamp();
+//		System.out.println("省份统计耗时：" + (time2 - time1) + "s");
+//		System.out.println(
+//				"城市统计：" + cityPriceStatisticsService.statisticsAll());
 		Double time3 = TimeUtil.getCurrentTimeStamp();
-		System.out.println("城市统计耗时：" + (time3 - time2) + "s");
+//		System.out.println("城市统计耗时：" + (time3 - time2) + "s");
 		System.out.println(
-				"县/乡统计：" + countyPriceStatisticsService.statisticsAll());
+				"区域统计：" + countyPriceStatisticsService.statisticsAll(1525010957.744, 
+						Double.valueOf(currentTimeStamp)));
 		Double time4 = TimeUtil.getCurrentTimeStamp();
-		System.out.println("县/乡统计耗时：" + (time4 - time3) + "s");
-		System.out.println("总耗时：" + (time4 - time1) + "s");
+		System.out.println("区域统计耗时：" + (time4 - time3) + "s");
+//		System.out.println("总耗时：" + (time4 - time1) + "s");
 	}
 }

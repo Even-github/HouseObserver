@@ -11,10 +11,13 @@ import per.even.HouseObserver.admin.service.HouseService;
 import per.even.HouseObserver.common.mapper.CityPriceStatisticsMapper;
 import per.even.HouseObserver.common.model.CityPriceStatistics;
 import per.even.HouseObserver.common.model.vo.CityAveragePrice;
+import per.even.HouseObserver.common.model.vo.CityBasicPriceInfo;
+import per.even.HouseObserver.common.model.vo.CityContrast;
 import per.even.HouseObserver.common.model.vo.CityNewPriceBean;
 import per.even.HouseObserver.common.model.vo.CityPriceAndRate;
 import per.even.HouseObserver.common.model.vo.CityPriceInfo;
 import per.even.HouseObserver.common.model.vo.CityPriceMainInfo;
+import per.even.HouseObserver.common.model.vo.CityVote;
 import per.even.HouseObserver.common.model.vo.PriceChart;
 import per.even.HouseObserver.common.model.vo.AveragePriceAndTime;
 import per.even.HouseObserver.utils.CityPriceStatisticsPrizeComparator;
@@ -25,7 +28,13 @@ import per.even.HouseObserver.utils.TimeUtil;
 @Service
 public class CityPriceStatisticsService {
 	//默认搜索12天内的统计记录
-	private static final int SEARCHTIMERANGE = 12; 
+//	private static final int SEARCHTIMERANGE = 12; 
+	
+	//房价预测上涨、下跌、平稳的编号分别为0，1，2
+	public static final int VOTERISENUM = 0;
+	public static final int VOTEFALLNUM = 1;
+	public static final int VOTESMOOTHNUM = 2;
+	
 	@Autowired
 	private CityPriceStatisticsMapper cityPriceStatisticsMapper;
 	@Autowired
@@ -35,14 +44,19 @@ public class CityPriceStatisticsService {
 	@Autowired
 	private CountyPriceStatisticsService countyPriceStatisticsService;
 	
-	public boolean statisticsAll() {
+	/**
+	 * 统计城市房价的所有数据
+	 * @return
+	 */
+	public boolean statisticsAll(Double beginTime, Double endTime) {
 		List<CityPriceStatistics> list =
 				this.statisticsNationRateRank(
 						this.statisticsWeekGrowthRate(
 								this.statisticsUsedAveragePrice(
 										this.statisticsNewAveragePrice(
 												this.statisticsNationPrizeRank(
-														this.statisticsAveragePrice())))));
+														this.statisticsAveragePrice(beginTime, endTime)), 
+															beginTime, endTime), beginTime, endTime), beginTime));
 		if(list != null) {
 			return cityPriceStatisticsMapper.bulkInsert(list) > 0;
 		} else {
@@ -54,9 +68,9 @@ public class CityPriceStatisticsService {
 	 * 统计平均房价
 	 * @return
 	 */
-	public List<CityPriceStatistics> statisticsAveragePrice() {
+	public List<CityPriceStatistics> statisticsAveragePrice(Double beginTime, Double endTime) {
 		List<CityAveragePrice> list = houseService.selectCityAveragePriceByCrawlTime(
-				TimeUtil.getLastWeekTimeStamp());
+				beginTime, endTime);
 		List<CityPriceStatistics> statisticsList = new ArrayList<>(); 
 		for(CityAveragePrice price : list) {
 			CityPriceStatistics statistics = new CityPriceStatistics();
@@ -77,12 +91,10 @@ public class CityPriceStatisticsService {
 	 * @return
 	 */
 	public List<CityPriceStatistics> statisticsNewAveragePrice(
-			List<CityPriceStatistics> list) {
+			List<CityPriceStatistics> list, Double beginTime, Double endTime) {
 		for(CityPriceStatistics statistics : list) {
 			Double newAveragePrice = houseService.selectCityAveragePriceByType(
-					statistics.getCity(),
-					"new",
-					TimeUtil.getLastWeekTimeStamp());
+					statistics.getCity(), "new", beginTime, endTime);
 			statistics.setNewAveragePrice(newAveragePrice);
 		}
 		return list;
@@ -94,12 +106,10 @@ public class CityPriceStatisticsService {
 	 * @return
 	 */
 	public List<CityPriceStatistics> statisticsUsedAveragePrice(
-			List<CityPriceStatistics> list) {
+			List<CityPriceStatistics> list, Double beginTime, Double endTime) {
 		for(CityPriceStatistics statistics : list) {
 			Double usedAveragePrice = houseService.selectCityAveragePriceByType(
-					statistics.getCity(),
-					"used",
-					TimeUtil.getLastWeekTimeStamp());
+					statistics.getCity(), "used", beginTime, endTime);
 			statistics.setUsedAveragePrice(usedAveragePrice);
 		}
 		return list;
@@ -111,13 +121,13 @@ public class CityPriceStatisticsService {
 	 * @return
 	 */
 	public List<CityPriceStatistics> statisticsWeekGrowthRate(
-			List<CityPriceStatistics> list) {
+			List<CityPriceStatistics> list, Double lastStatisticsTime) {
 		for(CityPriceStatistics statistics : list) {
-			Double targetTime = 
-					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, 
-							Double.valueOf(statistics.getStatisticalTime()));
+//			Double targetTime = 
+//					TimeUtil.getManyDaysAgo(SEARCHTIMERANGE, 
+//							Double.valueOf(statistics.getStatisticalTime()));
 			Double lastWeekAveragePrice = cityPriceStatisticsMapper.selectAveragePriceByCityAndTime(
-					statistics.getCity(), targetTime);
+					statistics.getCity(), lastStatisticsTime);
 			if(lastWeekAveragePrice != null) {
 				Double weekGrowthRate = (statistics.getAveragePrice() - lastWeekAveragePrice) * 100 / lastWeekAveragePrice;
 				statistics.setWeekGrowthRate(weekGrowthRate);
@@ -200,5 +210,62 @@ public class CityPriceStatisticsService {
 		bean.setCityPriceChart(this.getCityPriceChart(city));
 		bean.setCountyPriceInfoList(countyPriceStatisticsService.getCountyPriceInfoByCity(city));
 		return bean;
+	}
+
+	/**
+	 * 获取两个城市的房价对比数据
+	 * @param city1
+	 * @param city2
+	 * @return
+	 */
+	public CityContrast getCityContrast(String city1, String city2) {
+		CityContrast cityContrast = new CityContrast();
+		List<CityBasicPriceInfo> list = 
+				cityPriceStatisticsMapper.selectBasicInfoByCitys(city1, city2);
+		if(list.size() == 2) {
+			cityContrast.setCityInfo1(list.get(0));
+			cityContrast.setCityInfo2(list.get(1));
+		} else if (list.size() == 1) {
+			cityContrast.setCityInfo1(list.get(0));
+		}
+		return cityContrast;
+	}
+	
+	/**
+	 * 房价预测投票
+	 * @param id 编号
+	 * @param selected 
+	 * @return
+	 */
+	public boolean submitVote(String id, int selected) {
+		CityPriceStatistics record = new CityPriceStatistics();
+		record.setId(id);
+		if (selected == CityPriceStatisticsService.VOTERISENUM) {
+			Integer oldVoteCount = cityPriceStatisticsMapper.selectVoteRiseById(id);
+			if (oldVoteCount != null) {
+				record.setVoteRise(++oldVoteCount);
+			} else {
+				return false;
+			}
+		} else if (selected == CityPriceStatisticsService.VOTEFALLNUM) {
+			Integer oldVoteCount = cityPriceStatisticsMapper.selectVoteFallById(id);
+			if (oldVoteCount != null) {
+				record.setVoteFall(++oldVoteCount);
+			} else {
+				return false;
+			}
+		} else {
+			Integer oldVoteCount = cityPriceStatisticsMapper.selectVoteSmoothById(id);
+			if (oldVoteCount != null) {
+				record.setVoteSmooth(++oldVoteCount);
+			} else {
+				return false;
+			}
+		}
+		return cityPriceStatisticsMapper.updateByPrimaryKeySelective(record) > 0;
+	}
+
+	public CityVote getCityVoteById(String id) {
+		return cityPriceStatisticsMapper.selectCityVoteById(id);
 	}
 }

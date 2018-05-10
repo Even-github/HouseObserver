@@ -16,29 +16,36 @@
 	<select id="selectProvinceAveragePriceByCrawlTime" parameterType="java.lang.Double" resultType="per.even.HouseObserver.common.model.vo.ProvinceAveragePrice">
 		select province, AVG(unit_price) as averagePrice
 		from house where
-		crawl_time > #{time}
+		crawl_time &gt; #{beginTime} and crawl_time &lt; #{endTime} 
 		group by province
 	</select>
 	<select id="selectCityAveragePriceByCrawlTime" parameterType="java.lang.Double" resultType="per.even.HouseObserver.common.model.vo.CityAveragePrice">
 		select city, AVG(unit_price) as averagePrice
 		from house where
-		crawl_time > #{time}
+		crawl_time &gt; #{beginTime} and crawl_time &lt; #{endTime}
 		group by city
 	</select>
 	<select id="selectCityAveragePriceByType" resultType="java.lang.Double">
 		select AVG(unit_price) as averagePrice
 		from house where
-		crawl_time > #{time} and city = #{city} and type = #{type}
+		crawl_time &gt; #{beginTime} 
+		and crawl_time &lt; #{endTime} 
+		and city = #{city} 
+		and type = #{type}
 		group by city
 	</select>
-	<select id="selectCity" resultType="java.lang.String">
+	<select id="selectCityByCrawlTime" parameterType="java.lang.Double" resultType="java.lang.String">
 		select distinct city
 		from house
+		where crawl_time &gt; #{beginTime}
+		and crawl_time &lt; #{endTime} 
 	</select>
-	<select id="selectAveragePriceByCityCounty" parameterType="java.lang.String" resultType="per.even.HouseObserver.common.model.vo.CountyAveragePrice">
+	<select id="selectAveragePriceByCityCounty" resultType="per.even.HouseObserver.common.model.vo.CountyAveragePrice">
 		select county, AVG(unit_price) as averagePrice
 		from house where
-		city = #{city}
+		crawl_time &gt; #{beginTime} 
+		and crawl_time &lt; #{endTime} 
+		and city = #{city}
 		group by city, county
 		order by averagePrice desc
 	</select>

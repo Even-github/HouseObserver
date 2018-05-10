@@ -1,5 +1,6 @@
 package per.even.HouseObserver;
 
+import javax.servlet.Filter;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -10,12 +11,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
+import per.even.HouseObserver.filter.SessionFilter;
 
 @EnableAutoConfiguration
 @ComponentScan
@@ -53,4 +57,32 @@ public class HouseObserverApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HouseObserverApplication.class, args);
 	}
+	
+    /**
+     * 配置过滤器
+     * @return
+     */
+    @Bean
+    public FilterRegistrationBean someFilterRegistration() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(sessionFilter());
+        registration.addUrlPatterns("/about/submitAbout");
+        registration.addUrlPatterns("/login/updatePwd");
+        registration.addUrlPatterns("/admin/spider_data_source/*");
+        registration.addUrlPatterns("/admin/house/*");
+        registration.addUrlPatterns("/admin/spider/*");
+        registration.addUrlPatterns("/statisticsLog/*");
+        registration.addUrlPatterns("/statisticsManager/*");
+        registration.setName("sessionFilter");
+        return registration;
+    }
+
+    /**
+     * 创建一个bean
+     * @return
+     */
+    @Bean(name = "sessionFilter")
+    public Filter sessionFilter() {
+        return new SessionFilter();
+    }
 }

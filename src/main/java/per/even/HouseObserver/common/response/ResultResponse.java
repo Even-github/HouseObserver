@@ -29,5 +29,21 @@ public class ResultResponse extends BaseResponse{
 	public void setSuccess(boolean success) {
 		this.success = success;
 	}
+
+	public Boolean getSuccess() {
+		return success;
+	}
+
+	public void setSuccess(Boolean success) {
+		this.success = success;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	
 }

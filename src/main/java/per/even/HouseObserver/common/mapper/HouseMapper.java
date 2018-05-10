@@ -13,11 +13,28 @@ import tk.mybatis.mapper.common.Mapper;
 @org.apache.ibatis.annotations.Mapper
 public interface HouseMapper extends Mapper<House>{
 	List<House> selectByKeyword(String keyword);
+	
 	int bulkDeleteById(List<String> id);
-	List<ProvinceAveragePrice> selectProvinceAveragePriceByCrawlTime(Double time);
-	List<CityAveragePrice> selectCityAveragePriceByCrawlTime(Double time);
+	
+	List<ProvinceAveragePrice> selectProvinceAveragePriceByCrawlTime(
+			@Param(value = "beginTime")Double beginTime, 
+			@Param(value = "endTime")Double endTime);
+	
+	List<CityAveragePrice> selectCityAveragePriceByCrawlTime(
+			@Param(value = "beginTime")Double beginTime, 
+			@Param(value = "endTime")Double endTime);
+	
 	Double selectCityAveragePriceByType(@Param(value = "city")String city, 
-			@Param(value = "type")String type, @Param(value = "time")Double time);
-	List<String> selectCity();
-	List<CountyAveragePrice> selectAveragePriceByCityCounty(String city);
+			@Param(value = "type")String type, 
+			@Param(value = "beginTime")Double beginTime,
+			@Param(value = "endTime")Double endTime);
+	
+	List<String> selectCityByCrawlTime(
+			@Param(value = "beginTime")Double beginTime, 
+			@Param(value = "endTime")Double endTime);
+	
+	List<CountyAveragePrice> selectAveragePriceByCityCounty(
+			@Param(value = "city")String city, 
+			@Param(value = "beginTime")Double beginTime, 
+			@Param(value = "endTime")Double endTime);
 }

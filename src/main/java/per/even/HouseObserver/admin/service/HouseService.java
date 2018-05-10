@@ -52,25 +52,27 @@ public class HouseService extends AbstractService<House>{
 		return houseMapper.insertSelective(data) > 0;
 	}
 	
-	public List<ProvinceAveragePrice> selectProvinceAveragePriceByCrawlTime(Double time) {
-		return houseMapper.selectProvinceAveragePriceByCrawlTime(time);
+	public List<ProvinceAveragePrice> selectProvinceAveragePriceByCrawlTime(Double beginTime,
+			Double endTime) {
+		return houseMapper.selectProvinceAveragePriceByCrawlTime(beginTime, endTime);
 	}
 
-	public List<CityAveragePrice> selectCityAveragePriceByCrawlTime(Double time) {
-		return houseMapper.selectCityAveragePriceByCrawlTime(time);
+	public List<CityAveragePrice> selectCityAveragePriceByCrawlTime(Double beginTime, Double endTime) {
+		return houseMapper.selectCityAveragePriceByCrawlTime(beginTime, endTime);
 	}
 
 	public Double selectCityAveragePriceByType(String city, String type, 
-			Double beginTime) {
-		return houseMapper.selectCityAveragePriceByType(city, type, beginTime);
+			Double beginTime, Double endTime) {
+		return houseMapper.selectCityAveragePriceByType(city, type, beginTime, endTime);
 	}
 
-	public List<CountyAveragePrice> selectAveragePriceByCityCounty(String city) {
-		return houseMapper.selectAveragePriceByCityCounty(city);
+	public List<CountyAveragePrice> selectAveragePriceByCityCounty(
+			String city, Double beginTime, Double endTime) {
+		return houseMapper.selectAveragePriceByCityCounty(city, beginTime, endTime);
 	}
 
-	public List<String> selectCity() {
-		return houseMapper.selectCity();
+	public List<String> selectCityByCrawlTime(Double beginTime, Double endTime) {
+		return houseMapper.selectCityByCrawlTime(beginTime, endTime);
 	}
 	
 }

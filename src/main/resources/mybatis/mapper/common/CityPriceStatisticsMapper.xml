@@ -6,7 +6,7 @@
 	<select id="selectAveragePriceByCityAndTime" resultType="java.lang.Double">
 		select average_price
 		from city_price_statistics
-		where city=#{city} and statistical_time > #{time}
+		where city=#{city} and <![CDATA[statistical_time >= #{time}]]>
 		order by statistical_time desc
 		limit 1
 	</select>
@@ -21,7 +21,7 @@
 			#{item.usedAveragePrice},
 			#{item.weekGrowthRate},
 			#{item.nationRateRank},
-			#{item.nationPrizeRank}, 
+			#{item.nationPriceRank}, 
 			#{item.voteRise},
 			#{item.voteFall},
 			#{item.voteSmooth},
@@ -34,7 +34,7 @@
 		week_growth_rate as 'cityRate',
 		statistical_time as 'statisticalTime'
 		from city_price_statistics
-		where statistical_time > #{time}
+		where statistical_time &gt; #{time}
 		order by average_price DESC
 		limit #{rank}
 	</select>
@@ -48,9 +48,10 @@
         and city_price_statistics.city = province_city.city 
         and city_price_statistics.city = tmp.city
         and city_price_statistics.statistical_time = tmp.max_time
+        order by averagePrice DESC
 	</select>
 	<select id="selectByCity" resultType="per.even.HouseObserver.common.model.vo.CityPriceMainInfo">
-		select city,
+		select id, city,
 		average_price as 'averagePrice', 
 		new_average_price as 'newAveragePrice',
 		used_average_price as 'usedAveragePrice', 
@@ -70,5 +71,42 @@
 		from city_price_statistics
 		where city = #{city}
 		order by statisticalTime ASC
+	</select>
+	<select id="selectBasicInfoByCitys" parameterType="java.lang.String" resultType="per.even.HouseObserver.common.model.vo.CityBasicPriceInfo">
+		select city_price_statistics.city,
+		city_price_statistics.average_price as 'averagePrice', 
+		city_price_statistics.new_average_price as 'newAveragePrice',
+		city_price_statistics.used_average_price as 'usedAveragePrice', 
+		city_price_statistics.week_growth_rate as 'weekGrowthRate'
+		from city_price_statistics,
+			(select city, MAX(statistical_time) as max_time 
+			from city_price_statistics 
+			where city = #{city1} or city = #{city2}
+			group by city) as tmp
+		where city_price_statistics.city = tmp.city
+		and city_price_statistics.statistical_time = tmp.max_time
+	</select>
+	<select id="selectVoteRiseById" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select vote_rise
+		from city_price_statistics
+		where id=#{id}
+	</select>
+		<select id="selectVoteFallById" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select vote_fall
+		from city_price_statistics
+		where id=#{id}
+	</select>
+		<select id="selectVoteSmoothById" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select vote_smooth
+		from city_price_statistics
+		where id=#{id}
+	</select>
+	<select id="selectCityVoteById" parameterType="java.lang.String" resultType="per.even.HouseObserver.common.model.vo.CityVote">
+		select id,
+		vote_rise as voteRise,
+		vote_fall as voteFall,
+		vote_smooth as voteSmooth
+		from city_price_statistics
+		where id=#{id}	
 	</select>
 </mapper>

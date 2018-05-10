@@ -6,7 +6,7 @@
 	<select id="selectAveragePriceByProvinceAndTime" resultType="java.lang.Double">
 		select average_price
 		from province_price_statistics
-		where province=#{province} and statistical_time > #{time}
+		where province=#{province} and <![CDATA[statistical_time >= #{time}]]>
 		order by statistical_time desc
 		limit 1
 	</select>
@@ -29,7 +29,7 @@
 		week_growth_rate as 'provinceRate',
 		prize_rank as 'provincePrizeRank' 
 		from province_price_statistics
-		where statistical_time > #{time}
+		where statistical_time &gt; #{time}
 	</select>
 	<select id="selectNewAveragePrice" resultType="per.even.HouseObserver.common.model.vo.ProvincePriceInfo">
 		select 
@@ -43,6 +43,7 @@
 		group by province) as tmp
 		where province_price_statistics.province = tmp.province
 		and province_price_statistics.statistical_time = tmp.max_time
+		order by provinceAveragePrice desc
 	</select>
 	<select id="getProvinceNewPriceInfoByProvince" resultType="per.even.HouseObserver.common.model.vo.ProvinceNewPriceInfo">
 		select province,
